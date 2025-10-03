@@ -1,11 +1,12 @@
 import java.util.List;
 
 public class Trip {
-    private List<Connection> connections;  
+    private List<Connection> connections;
     private double totalFirstClassRate;
     private double totalSecondClassRate;
-    private String tripDuration; 
-    private String waitTimes;   
+    private String tripDuration;
+    private int tripDurationInMinutes;
+    private String waitTimes;
 
     public Trip(List<Connection> connections) {
         this.connections = connections;
@@ -27,7 +28,9 @@ public class Trip {
         // basic trip duration = last arrival - first departure
         Connection firstConn = connections.get(0);
         Connection lastConn = connections.get(connections.size() - 1);
-        this.tripDuration = calculateDuration(firstConn.getDepartureTime(), lastConn.getArrivalTime());
+        this.tripDurationInMinutes = calculateDurationInMinutes(firstConn.getDepartureTime(),
+                lastConn.getArrivalTime());
+        this.tripDuration = formatDuration(this.tripDurationInMinutes);
 
         // wait times
         this.waitTimes = calculateWaitTimes();
@@ -49,16 +52,20 @@ public class Trip {
         return total;
     }
 
-    private String calculateDuration(String dep, String arr) {
+    private String formatDuration(int duration) {
+        int hours = duration / 60;
+        int minutes = duration % 60;
+        return hours + "h " + minutes + "m";
+    }
+
+    public int calculateDurationInMinutes(String dep, String arr) {
         int depMinutes = parseTime(dep);
         int arrMinutes = parseTime(arr);
         int duration = arrMinutes - depMinutes;
         if (duration < 0) {
             duration += 24 * 60; // roll into next day
         }
-        int hours = duration / 60;
-        int minutes = duration % 60;
-        return hours + "h " + minutes + "m";
+        return duration;
     }
 
     private String calculateWaitTimes() {
@@ -94,6 +101,10 @@ public class Trip {
         return tripDuration;
     }
 
+    public int getTripDurationInMinutes() {
+        return tripDurationInMinutes;
+    }
+
     public String getWaitTimes() {
         return waitTimes;
     }
@@ -106,10 +117,10 @@ public class Trip {
         }
 
         return "Trip: " + connections.size() + " connections, " +
-               "Duration=" + tripDuration +
-               ", Wait=" + waitTimes +
-               ", 1st=€" + String.format("%.2f", totalFirstClassRate) +
-               ", 2nd=€" + String.format("%.2f", totalSecondClassRate) +
-               "\nConnections:\n" + connectionsDetails.toString();
+                "Duration=" + tripDuration +
+                ", Wait=" + waitTimes +
+                ", 1st=€" + String.format("%.2f", totalFirstClassRate) +
+                ", 2nd=€" + String.format("%.2f", totalSecondClassRate);
+        // "\nConnections:\n" + connectionsDetails.toString();
     }
 }
