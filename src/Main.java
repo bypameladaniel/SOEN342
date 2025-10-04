@@ -2,7 +2,6 @@ import com.opencsv.CSVReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -29,6 +28,7 @@ public class Main {
         if (paris != null) {
             for (Connection c : paris.getOutgoingConnections()) {
                 System.out.println("From Amsterdam: " + c);
+                System.out.println(c.getDaysOfOperation());
             }
         }
 
@@ -161,9 +161,9 @@ public class Main {
 
     public static Comparator<Trip> getComparator(int sortBy, boolean isAscending) {
         Comparator<Trip> comparator = switch (sortBy) {
-            case 0 -> Comparator.comparingDouble(Trip::getTotalFirstClassRate);
-            case 1 -> Comparator.comparingDouble(Trip::getTotalSecondClassRate);
-            case 2 -> Comparator.comparingInt(Trip::getTripDurationInMinutes);
+            case 0 -> Comparator.comparingDouble(trip -> trip.getTotalFirstClassRate());
+            case 1 -> Comparator.comparingDouble(trip -> trip.getTotalSecondClassRate());
+            case 2 -> Comparator.comparingInt(trip -> trip.getTripDurationInMinutes());
             default -> throw new IllegalArgumentException("Invalid sort field: " + sortBy);
         };
 
