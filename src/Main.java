@@ -7,13 +7,16 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] var0) throws Exception {
-        ConnectionDB connectionDB = new ConnectionDB();
+        UserInterface.printWelcome();
 
+        ConnectionDB connectionDB = new ConnectionDB();
         CityDB cityDB = new CityDB();
 
         String filePath = "data/eu_rail_network.csv";
-
         loadConnections(filePath, connectionDB, cityDB);
+
+
+        SearchQuery sq = UserInterface.printSearchParameters(cityDB);
 
         /*
          * TESTING SECTION FOR NOW
