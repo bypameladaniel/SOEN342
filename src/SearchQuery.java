@@ -15,9 +15,10 @@ public class SearchQuery {
     private double secondClassRate;
 
     public SearchQuery() {
-        this.daysOfWeek = EnumSet.noneOf(DayOfWeek.class);
+        this.daysOfWeek = EnumSet.allOf(DayOfWeek.class);
     }
 
+    // Input request to add to the search query
     public static City getCityInput(CityDB cityDB) {
         Scanner sc = new Scanner(System.in);
         City city;
@@ -116,6 +117,8 @@ public class SearchQuery {
 
     }
 
+
+    // Getters and Setters
     public City getArrivalCity() {
         return arrivaleCity;
     }

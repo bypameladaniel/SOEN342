@@ -42,7 +42,7 @@ public class Trip {
 
     }
 
-    private int parseTime(String time) {
+    public static int parseTime(String time) {
         // Handle (+1d)
         boolean plusDay = time.contains("(+1d)");
         String clean = time.replace(" (+1d)", "").trim();
@@ -128,6 +128,16 @@ public class Trip {
     }
 
     // --- Getters ---
+//    public String getFirstDepartureTime(){
+//        String departure = connections.get(0).getDepartureTime();
+//        for(int i = 1, i < connections.size(), i++){
+//            if (departure.compareTo(connections.get(i).getDepartureTime()){
+//                departure = connections.get(i).getDepartureTime();
+//            }
+//        }
+//        return departure;
+//    }
+
     public List<Connection> getConnections() {
         return connections;
     }

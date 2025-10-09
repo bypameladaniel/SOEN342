@@ -71,5 +71,11 @@ public class UserInterface {
 
         }
     }
+
+    public static void printResult(List<Object> results){
+        for (Object obj : results){
+            System.out.println(obj.toString());
+        }
+    }
 }
 
