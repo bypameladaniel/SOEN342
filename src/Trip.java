@@ -35,10 +35,10 @@ public class Trip {
         this.totalSecondClassRate = totalSecondClassRate;
 
         this.waitTimeInMinutes = calculateWaitTimes();
-        this.waitTime = formatWaitTime(waitTimeInMinutes);
+        this.waitTime = formatTime(waitTimeInMinutes);
 
         this.tripDurationInMinutes = duration + this.waitTimeInMinutes;
-        this.tripDuration = formatDuration(this.tripDurationInMinutes);
+        this.tripDuration = formatTime(this.tripDurationInMinutes);
 
     }
 
@@ -58,7 +58,7 @@ public class Trip {
         return total;
     }
 
-    private String formatDuration(int duration) {
+    private String formatTime(int duration) {
         int hours = duration / 60;
         int minutes = duration % 60;
         return hours + "h " + minutes + "m";
@@ -72,12 +72,6 @@ public class Trip {
             duration += 24 * 60; // roll into next day
         }
         return duration;
-    }
-
-    private String formatWaitTime(int waitTime) {
-        int hours = waitTime / 60;
-        int minutes = waitTime % 60;
-        return hours + "h " + minutes + "m";
     }
 
     private int calculateWaitTimes() {

@@ -1,4 +1,5 @@
 import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
@@ -98,6 +99,19 @@ public class Connection {
         return DAY_MAP.get(input.substring(0, 3).toUpperCase());
     }
 
+    public int getDuration(){
+        int duration = LocalTime.parse(getArrivalTime().substring(0,5)).getMinute()- LocalTime.parse(getDepartureTime()).getMinute();
+        if (duration<0) {duration += 24*60;}
+
+        return duration;
+    }
+
+    private String formatTime(int duration) {
+        int hours = duration / 60;
+        int minutes = duration % 60;
+        return hours + "h " + minutes + "m";
+    }
+
     public String getRouteId() {
         return routeId;
     }
@@ -138,15 +152,17 @@ public class Connection {
         return secondClassRate;
     }
 
+
     @Override
     public String toString() {
         return String.format(
-                "[%s] %s → %s | %s - %s | Train: %s | Days: %s | 1st: €%.2f | 2nd: €%.2f",
+                "[%s] %s → %s | %s - %s (%s)| Train: %s | Days: %s | 1st: €%.2f | 2nd: €%.2f",
                 routeId,
                 departureCity.getName(),
                 arrivalCity.getName(),
                 departureTime,
                 arrivalTime,
+                formatTime(getDuration()),
                 trainType,
                 daysOfOperationFormatted,
                 firstClassRate,

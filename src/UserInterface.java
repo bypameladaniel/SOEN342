@@ -72,6 +72,60 @@ public class UserInterface {
         }
     }
 
+    public static int[] getSortingPreferences(){
+        Scanner sc = new Scanner(System.in);
+        int[] result = new int[2];
+
+        String inputStr;
+        System.out.println("Results found, do you want to sort the trips (y/n)");
+        inputStr = sc.next();
+        if(!inputStr.equals("y")) {
+            return null;
+        }
+
+        whileLoop:
+        while(true) {
+            System.out.println("""
+                Please enter the parameter you want to sort by:
+                [1] First Class Rate
+                [2] Second Class Rate
+                [3] Trip Duration
+                [0] Exit
+                """);
+
+            inputStr = sc.next();
+            switch (inputStr) {
+                case "1": result[0] = 1; break whileLoop;
+                case "2": result[0] = 2; break whileLoop;
+                case "3","0": result[0] = 3; break whileLoop;
+                default:  {
+                    System.out.println("Invalid input. Try again.");
+                }
+            }
+        }
+
+        whileLoop:
+        while(true) {
+            System.out.println("""
+                Please enter how you want to sort:
+                [1] Ascending
+                [2] Descending
+                [0] Exit
+                """);
+
+            inputStr = sc.next();
+            switch (inputStr) {
+                case "1","0": result[1] = 1; break whileLoop;
+                case "2": result[1] = 0; break whileLoop;
+                default:  {
+                    System.out.println("Invalid input. Try again.");
+                }
+            }
+        }
+
+        return result;
+    }
+
     public static void printResult(List<Object> results){
         for (Object obj : results){
             System.out.println(obj.toString());

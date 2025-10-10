@@ -50,7 +50,7 @@ public class ConnectionDB {
                 );
 
                 // --- Add to DB and link cities ---
-                connections.addLast(conn);
+                connections.add(conn);
                 departureCity.addOutgoingConnection(conn);
                 arrivalCity.addIncomingConnection(conn);
             }

@@ -41,22 +41,47 @@ public class TripUtils {
         return results;
     }
 
-    public static List<Trip> sortTrips(List<Trip> trips, int sortBy, boolean isAscending) {
-        List<Trip> sortedTrips = new ArrayList<Trip>(trips);
-        sortedTrips.sort(getComparator(sortBy, isAscending));
-        return sortedTrips;
+    public static List<?> sortTrips(List<?> list, int sortBy, boolean isAscending) {
+        if (!list.isEmpty() && list.get(0) instanceof Trip) {
+            @SuppressWarnings("unchecked")
+            List<Trip> typedList = (List<Trip>) list;
+            List<Trip> sortedTrips = new ArrayList<>(typedList);
+            sortedTrips.sort((Comparator<Trip>)getTripComparator(sortBy, isAscending));
+            return sortedTrips;
+
+        } else if (!list.isEmpty() && list.get(0) instanceof Connection) {
+            @SuppressWarnings("unchecked")
+            List<Connection> typedList = (List<Connection>) list;
+            List<Connection> sortedTrips = new ArrayList<>(typedList);
+            sortedTrips.sort((Comparator<Connection>)getConnectionComparator(sortBy, isAscending));
+            return sortedTrips;
+
+        }
+
+        return list;
     }
 
-    public static Comparator<Trip> getComparator(int sortBy, boolean isAscending) {
+    public static Comparator<Trip> getTripComparator( int sortBy, boolean isAscending) {
         Comparator<Trip> comparator = switch (sortBy) {
-            case 0 -> Comparator.comparingDouble(trip -> trip.getTotalFirstClassRate());
-            case 1 -> Comparator.comparingDouble(trip -> trip.getTotalSecondClassRate());
-            case 2 -> Comparator.comparingInt(trip -> trip.getTripDurationInMinutes());
+            case 1 -> Comparator.comparingDouble(trip -> trip.getTotalFirstClassRate());
+            case 2 -> Comparator.comparingDouble(trip -> trip.getTotalSecondClassRate());
+            case 3 -> Comparator.comparingInt(trip -> trip.getTripDurationInMinutes());
             default -> throw new IllegalArgumentException("Invalid sort field: " + sortBy);
         };
-
         return isAscending ? comparator : comparator.reversed();
     }
+
+    public static Comparator<Connection> getConnectionComparator(int sortBy, boolean isAscending) {
+        Comparator<Connection> comparator = switch (sortBy) {
+            case 1 -> Comparator.comparingDouble(connection -> connection.getFirstClassRate ());
+            case 2 -> Comparator.comparingDouble(connection -> connection.getSecondClassRate ());
+            case 3 -> Comparator.comparingInt(connection -> connection.getDuration());
+            default -> throw new IllegalArgumentException("Invalid sort field: " + sortBy);
+        };
+        return isAscending ? comparator : comparator.reversed();
+
+    }
+
 
     public static List<Object> getTripAndConnections(List<Connection> connections, SearchQuery searchQuery) {
         List<Object> results = new ArrayList<>(getSpecitficConnections(searchQuery, connections));
@@ -119,8 +144,8 @@ public class TripUtils {
             LocalTime arrivalTimeStart = arrivalTimeEnd.minusHours(1);
 
             Predicate<Connection> arrivalTimePredicate = c->
-                    LocalTime.parse(c.getArrivalTime()).isAfter(arrivalTimeStart) &&
-                            LocalTime.parse(c.getArrivalTime()).isBefore(arrivalTimeEnd);
+                    LocalTime.parse(c.getArrivalTime().substring(0,5)).isAfter(arrivalTimeStart) &&
+                            LocalTime.parse(c.getArrivalTime().substring(0,5)).isBefore(arrivalTimeEnd);
 
             generalPredicate = generalPredicate.and(arrivalTimePredicate);
         }
@@ -158,9 +183,66 @@ public class TripUtils {
     }
 
     public static List<Trip> getSpecificTrip(SearchQuery searchQuery, List<Trip> trips) {
-        
+        List<Trip> results = new ArrayList<>(trips);
 
+        LocalTime departureTimeStart = LocalTime.of(0,0);
+        LocalTime departureTimeEnd = LocalTime.of(0,0);
 
+        if (searchQuery.getDepartureTime() != null) {
+            departureTimeStart = LocalTime.parse(searchQuery.getDepartureTime());
+            departureTimeEnd = departureTimeStart.plusHours(1);
+        }
+
+        LocalTime arrivalTimeEnd = LocalTime.of(0,0);
+        LocalTime arrivalTimeStart = LocalTime.of(0,0);
+
+        if (searchQuery.getArrivalTime() != null) {
+            arrivalTimeEnd = LocalTime.parse(searchQuery.getArrivalTime().substring(0,5));
+            arrivalTimeStart = arrivalTimeEnd.minusHours(1);
+        }
+
+        for (Trip trip : trips) {
+            if  (searchQuery.getDepartureTime() != null) {
+                LocalTime tripDeparture = LocalTime.parse(trip.getConnections().getFirst().getDepartureTime());
+                if (!(tripDeparture.isAfter(arrivalTimeStart) &&
+                        tripDeparture.isBefore(arrivalTimeEnd))){
+                    results.remove(trip);
+                }
+            }
+
+            if  (searchQuery.getDepartureTime() != null) {
+                LocalTime tripDeparture = LocalTime.parse(trip.getConnections().getLast().getArrivalTime().substring(0,5));
+                if (!(tripDeparture.isAfter(arrivalTimeStart) &&
+                        tripDeparture.isBefore(arrivalTimeEnd))){
+                    results.remove(trip);
+                }
+            }
+
+            if (searchQuery.getTrainType() != null) {
+                for (Connection connection : trip.getConnections()) {
+                    if (!searchQuery.getTrainType().equals(connection.getTrainType())) {
+                        results.remove(trip);
+                    }
+                }
+            }
+
+            if (searchQuery.getDaysOfWeek() != null &&
+                    Collections.disjoint(
+                            trip.getConnections().getFirst().getDaysOfOperation(),
+                            searchQuery.getDaysOfWeek())) {
+                results.remove(trip);
+            }
+
+            if (searchQuery.getFirstClassRate() != 0.0 && trip.getTotalFirstClassRate() != searchQuery.getFirstClassRate()) {
+                results.remove(trip);
+            }
+
+            if (searchQuery.getSecondClassRate() != 0.0 && trip.getTotalSecondClassRate() != searchQuery.getSecondClassRate()) {
+                results.remove(trip);
+            }
+
+        }
+        return results;
     }
 
 }
