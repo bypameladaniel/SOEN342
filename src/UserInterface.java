@@ -80,7 +80,7 @@ public class UserInterface {
         System.out.println("Results found, do you want to sort the trips (y/n)");
         inputStr = sc.next();
         if(!inputStr.equals("y")) {
-            return null;
+            return new int[]{3,1};
         }
 
         whileLoop:
