@@ -203,7 +203,7 @@ public class TripUtils {
 
         for (Trip trip : trips) {
             if  (searchQuery.getDepartureTime() != null) {
-                LocalTime tripDeparture = LocalTime.parse(trip.getConnections().getFirst().getDepartureTime());
+                LocalTime tripDeparture = LocalTime.parse(trip.getConnections().get(0).getDepartureTime());
                 if (!(tripDeparture.isAfter(arrivalTimeStart) &&
                         tripDeparture.isBefore(arrivalTimeEnd))){
                     results.remove(trip);
@@ -211,7 +211,7 @@ public class TripUtils {
             }
 
             if  (searchQuery.getDepartureTime() != null) {
-                LocalTime tripDeparture = LocalTime.parse(trip.getConnections().getLast().getArrivalTime().substring(0,5));
+                LocalTime tripDeparture = LocalTime.parse(trip.getConnections().get(trip.getConnections().size() - 1).getArrivalTime().substring(0,5));
                 if (!(tripDeparture.isAfter(arrivalTimeStart) &&
                         tripDeparture.isBefore(arrivalTimeEnd))){
                     results.remove(trip);
@@ -228,7 +228,7 @@ public class TripUtils {
 
             if (searchQuery.getDaysOfWeek() != null &&
                     Collections.disjoint(
-                            trip.getConnections().getFirst().getDaysOfOperation(),
+                            trip.getConnections().get(0).getDaysOfOperation(),
                             searchQuery.getDaysOfWeek())) {
                 results.remove(trip);
             }
