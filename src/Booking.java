@@ -1,13 +1,14 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Booking {
     private String bookingID;
     private Trip trip;
     private List<Reservation> reservations = new ArrayList<>();
 
-    public Booking(String bookingID, Trip trip) {
-        this.bookingID = bookingID;
+    public Booking(Trip trip) {
+        this.bookingID = UUID.randomUUID().toString();
         this.trip = trip;
     }
 
