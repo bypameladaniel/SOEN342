@@ -7,7 +7,6 @@ public class TripUtils {
     public static List<Trip> findIndirectTrips(City departureCity, City arrivalCity) {
         List<Trip> results = new ArrayList<>();
 
-
         if (departureCity == null || arrivalCity == null) {
             return results; // no such city
         }
@@ -41,27 +40,18 @@ public class TripUtils {
         return results;
     }
 
-    public static List<?> sortTrips(List<?> list, int sortBy, boolean isAscending) {
+    public static List<Trip> sortTrips(List<Trip> list, int sortBy, boolean isAscending) {
         if (!list.isEmpty() && list.get(0) instanceof Trip) {
             @SuppressWarnings("unchecked")
             List<Trip> typedList = (List<Trip>) list;
             List<Trip> sortedTrips = new ArrayList<>(typedList);
-            sortedTrips.sort((Comparator<Trip>)getTripComparator(sortBy, isAscending));
+            sortedTrips.sort((Comparator<Trip>) getTripComparator(sortBy, isAscending));
             return sortedTrips;
-
-        } else if (!list.isEmpty() && list.get(0) instanceof Connection) {
-            @SuppressWarnings("unchecked")
-            List<Connection> typedList = (List<Connection>) list;
-            List<Connection> sortedTrips = new ArrayList<>(typedList);
-            sortedTrips.sort((Comparator<Connection>)getConnectionComparator(sortBy, isAscending));
-            return sortedTrips;
-
-        }
-
+        } 
         return list;
     }
 
-    public static Comparator<Trip> getTripComparator( int sortBy, boolean isAscending) {
+    public static Comparator<Trip> getTripComparator(int sortBy, boolean isAscending) {
         Comparator<Trip> comparator = switch (sortBy) {
             case 1 -> Comparator.comparingDouble(trip -> trip.getTotalFirstClassRate());
             case 2 -> Comparator.comparingDouble(trip -> trip.getTotalSecondClassRate());
@@ -71,27 +61,15 @@ public class TripUtils {
         return isAscending ? comparator : comparator.reversed();
     }
 
-    public static Comparator<Connection> getConnectionComparator(int sortBy, boolean isAscending) {
-        Comparator<Connection> comparator = switch (sortBy) {
-            case 1 -> Comparator.comparingDouble(connection -> connection.getFirstClassRate ());
-            case 2 -> Comparator.comparingDouble(connection -> connection.getSecondClassRate ());
-            case 3 -> Comparator.comparingInt(connection -> connection.getDuration());
-            default -> throw new IllegalArgumentException("Invalid sort field: " + sortBy);
-        };
-        return isAscending ? comparator : comparator.reversed();
-
-    }
-
-
-    public static List<Object> getTripAndConnections(List<Connection> connections, SearchQuery searchQuery) {
-        List<Object> results = new ArrayList<>(getSpecitficConnections(searchQuery, connections));
+    public static List<Trip> getTripAndConnections(List<Connection> connections, SearchQuery searchQuery) {
+        List<Trip> results = getSpecitficConnections(searchQuery, connections);
         if (!results.isEmpty()) {
             return results;
         } else {
             System.out.println("Could not find a single connection matching the request");
         }
 
-        if (searchQuery.getDepartureCity() != null && searchQuery.getArrivalCity() != null){
+        if (searchQuery.getDepartureCity() != null && searchQuery.getArrivalCity() != null) {
             System.out.println("Trying to find a trip with multiple connections");
 
             List<Trip> trips = findIndirectTrips(searchQuery.getDepartureCity(), searchQuery.getArrivalCity());
@@ -104,38 +82,33 @@ public class TripUtils {
 
         }
 
-
-
-        return  results;
-
+        return results;
 
     }
 
-    public static List<Connection> getSpecitficConnections(SearchQuery searchQuery, List<Connection> connections) {
-        List<Connection> results = new ArrayList<>();
+    public static List<Trip> getSpecitficConnections(SearchQuery searchQuery, List<Connection> connections) {
+        List<Trip> results = new ArrayList<>();
         Predicate<Connection> generalPredicate = connection -> connections != null;
 
-
         if (searchQuery.getDepartureCity() != null) {
-            Predicate<Connection> departureCityPredicate = connection ->
-                    connection.getDepartureCity().equals(searchQuery.getDepartureCity());
+            Predicate<Connection> departureCityPredicate = connection -> connection.getDepartureCity()
+                    .equals(searchQuery.getDepartureCity());
             generalPredicate = generalPredicate.and(departureCityPredicate);
         }
         if (searchQuery.getArrivalCity() != null) {
-            Predicate<Connection> arrivalCityPredicate = connection ->
-                    connection.getArrivalCity().equals(searchQuery.getArrivalCity());
+            Predicate<Connection> arrivalCityPredicate = connection -> connection.getArrivalCity()
+                    .equals(searchQuery.getArrivalCity());
             generalPredicate = generalPredicate.and(arrivalCityPredicate);
         }
 
-
-        //departure and arrival predicate
+        // departure and arrival predicate
         if (searchQuery.getDepartureTime() != null) {
             LocalTime departureTimeStart = LocalTime.parse(searchQuery.getDepartureTime());
             LocalTime departureTimeEnd = departureTimeStart.plusHours(1);
 
-            Predicate<Connection> departureTimePredicate = c->
-                    LocalTime.parse(c.getDepartureTime()).isAfter(departureTimeStart) &&
-                            LocalTime.parse(c.getDepartureTime()).isBefore(departureTimeEnd);
+            Predicate<Connection> departureTimePredicate = c -> LocalTime.parse(c.getDepartureTime())
+                    .isAfter(departureTimeStart) &&
+                    LocalTime.parse(c.getDepartureTime()).isBefore(departureTimeEnd);
             generalPredicate = generalPredicate.and(departureTimePredicate);
         }
 
@@ -143,40 +116,41 @@ public class TripUtils {
             LocalTime arrivalTimeEnd = LocalTime.parse(searchQuery.getArrivalTime());
             LocalTime arrivalTimeStart = arrivalTimeEnd.minusHours(1);
 
-            Predicate<Connection> arrivalTimePredicate = c->
-                    LocalTime.parse(c.getArrivalTime().substring(0,5)).isAfter(arrivalTimeStart) &&
-                            LocalTime.parse(c.getArrivalTime().substring(0,5)).isBefore(arrivalTimeEnd);
+            Predicate<Connection> arrivalTimePredicate = c -> LocalTime.parse(c.getArrivalTime().substring(0, 5))
+                    .isAfter(arrivalTimeStart) &&
+                    LocalTime.parse(c.getArrivalTime().substring(0, 5)).isBefore(arrivalTimeEnd);
 
             generalPredicate = generalPredicate.and(arrivalTimePredicate);
         }
 
-        if  (searchQuery.getTrainType() != null) {
-            Predicate<Connection> trainTypePredicate = connection ->
-                    connection.getTrainType().equals(searchQuery.getTrainType());
+        if (searchQuery.getTrainType() != null) {
+            Predicate<Connection> trainTypePredicate = connection -> connection.getTrainType()
+                    .equals(searchQuery.getTrainType());
             generalPredicate = generalPredicate.and(trainTypePredicate);
         }
 
         if (searchQuery.getDaysOfWeek() != null) {
-            Predicate<Connection> daysOfWeekPredicate = connection ->
-                    !Collections.disjoint(connection.getDaysOfOperation(), searchQuery.getDaysOfWeek());
+            Predicate<Connection> daysOfWeekPredicate = connection -> !Collections
+                    .disjoint(connection.getDaysOfOperation(), searchQuery.getDaysOfWeek());
             generalPredicate = generalPredicate.and(daysOfWeekPredicate);
         }
 
         if (searchQuery.getFirstClassRate() != 0.0) {
-            Predicate<Connection> firstClassRatePredicate = connection ->
-                    searchQuery.getFirstClassRate() == connection.getFirstClassRate();
+            Predicate<Connection> firstClassRatePredicate = connection -> searchQuery.getFirstClassRate() == connection
+                    .getFirstClassRate();
             generalPredicate = generalPredicate.and(firstClassRatePredicate);
         }
         if (searchQuery.getSecondClassRate() != 0.0) {
-            Predicate<Connection> secondClassRatePredicate = connection ->
-                    searchQuery.getSecondClassRate() == connection.getSecondClassRate();
+            Predicate<Connection> secondClassRatePredicate = connection -> searchQuery
+                    .getSecondClassRate() == connection.getSecondClassRate();
             generalPredicate = generalPredicate.and(secondClassRatePredicate);
         }
 
-
         // executing the queries
         for (Connection connection : connections) {
-            if (generalPredicate.test(connection)) { results.add(connection); }
+            if (generalPredicate.test(connection)) {
+                results.add(new Trip(List.of(connection)));
+            }
         }
 
         return results;
@@ -185,35 +159,36 @@ public class TripUtils {
     public static List<Trip> getSpecificTrip(SearchQuery searchQuery, List<Trip> trips) {
         List<Trip> results = new ArrayList<>(trips);
 
-        LocalTime departureTimeStart = LocalTime.of(0,0);
-        LocalTime departureTimeEnd = LocalTime.of(0,0);
+        LocalTime departureTimeStart = LocalTime.of(0, 0);
+        LocalTime departureTimeEnd = LocalTime.of(0, 0);
 
         if (searchQuery.getDepartureTime() != null) {
             departureTimeStart = LocalTime.parse(searchQuery.getDepartureTime());
             departureTimeEnd = departureTimeStart.plusHours(1);
         }
 
-        LocalTime arrivalTimeEnd = LocalTime.of(0,0);
-        LocalTime arrivalTimeStart = LocalTime.of(0,0);
+        LocalTime arrivalTimeEnd = LocalTime.of(0, 0);
+        LocalTime arrivalTimeStart = LocalTime.of(0, 0);
 
         if (searchQuery.getArrivalTime() != null) {
-            arrivalTimeEnd = LocalTime.parse(searchQuery.getArrivalTime().substring(0,5));
+            arrivalTimeEnd = LocalTime.parse(searchQuery.getArrivalTime().substring(0, 5));
             arrivalTimeStart = arrivalTimeEnd.minusHours(1);
         }
 
         for (Trip trip : trips) {
-            if  (searchQuery.getDepartureTime() != null) {
+            if (searchQuery.getDepartureTime() != null) {
                 LocalTime tripDeparture = LocalTime.parse(trip.getConnections().get(0).getDepartureTime());
                 if (!(tripDeparture.isAfter(arrivalTimeStart) &&
-                        tripDeparture.isBefore(arrivalTimeEnd))){
+                        tripDeparture.isBefore(arrivalTimeEnd))) {
                     results.remove(trip);
                 }
             }
 
-            if  (searchQuery.getDepartureTime() != null) {
-                LocalTime tripDeparture = LocalTime.parse(trip.getConnections().get(trip.getConnections().size() - 1).getArrivalTime().substring(0,5));
+            if (searchQuery.getDepartureTime() != null) {
+                LocalTime tripDeparture = LocalTime.parse(
+                        trip.getConnections().get(trip.getConnections().size() - 1).getArrivalTime().substring(0, 5));
                 if (!(tripDeparture.isAfter(arrivalTimeStart) &&
-                        tripDeparture.isBefore(arrivalTimeEnd))){
+                        tripDeparture.isBefore(arrivalTimeEnd))) {
                     results.remove(trip);
                 }
             }
@@ -233,11 +208,13 @@ public class TripUtils {
                 results.remove(trip);
             }
 
-            if (searchQuery.getFirstClassRate() != 0.0 && trip.getTotalFirstClassRate() != searchQuery.getFirstClassRate()) {
+            if (searchQuery.getFirstClassRate() != 0.0
+                    && trip.getTotalFirstClassRate() != searchQuery.getFirstClassRate()) {
                 results.remove(trip);
             }
 
-            if (searchQuery.getSecondClassRate() != 0.0 && trip.getTotalSecondClassRate() != searchQuery.getSecondClassRate()) {
+            if (searchQuery.getSecondClassRate() != 0.0
+                    && trip.getTotalSecondClassRate() != searchQuery.getSecondClassRate()) {
                 results.remove(trip);
             }
 

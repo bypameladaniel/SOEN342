@@ -126,7 +126,7 @@ public class UserInterface {
         return result;
     }
 
-    public static void printResult(List<Object> results){
+    public static void printResult(List<Trip> results){
         for (Object obj : results){
             System.out.println(obj.toString());
         }

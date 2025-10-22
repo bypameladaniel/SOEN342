@@ -19,11 +19,11 @@ public class Main {
 
         SearchQuery sq = UserInterface.printSearchParameters(cityDB);
 
-        List<Object> result = new ArrayList<>(TripUtils.getTripAndConnections(connectionDB.getAllConnections(), sq));
+        List<Trip> result = TripUtils.getTripAndConnections(connectionDB.getAllConnections(), sq);
 
 
         int[] sortingPreferences = UserInterface.getSortingPreferences();
-        List<Object> sortedResults = new ArrayList<>(TripUtils.sortTrips(result, sortingPreferences[0], sortingPreferences[1]==1));
+        List<Trip> sortedResults = TripUtils.sortTrips(result, sortingPreferences[0], sortingPreferences[1]==1);
 
         UserInterface.printResult(sortedResults);
 
