@@ -2,6 +2,8 @@ import java.util.*;
 
 public class UserInterface {
 
+    private static final Scanner sc = new Scanner(System.in);
+
     public static void printWelcome() {
         System.out.println("""
                 ************************************************
@@ -13,8 +15,14 @@ public class UserInterface {
 
     }
 
+    public static void printMenu() {
+        System.out.println("\n==== MAIN MENU ====");
+        System.out.println("1. Search and book a trip");
+        System.out.println("2. View all bookings");
+        System.out.println("3. Exit");
+    }
+
     public static SearchQuery printSearchParameters(CityDB cityDB) {
-        Scanner sc = new Scanner(System.in);
         SearchQuery sq = new SearchQuery();
 
         String formatedString = """
@@ -43,10 +51,9 @@ public class UserInterface {
                     sq.getFirstClassRate() == 0 ? "*" : sq.getFirstClassRate(),
                     sq.getSecondClassRate() == 0 ? "*" : sq.getSecondClassRate());
             input = sc.nextLine();
-
             switch (input) {
                 case "0":
-                    System.exit(0);
+                    return null;
                 case "1":
                     sq.setDepartureCity(SearchQuery.getCityInput(cityDB));
                     break;
@@ -86,12 +93,11 @@ public class UserInterface {
     }
 
     public static int[] getSortingPreferences() {
-        Scanner sc = new Scanner(System.in);
         int[] result = new int[2];
 
         String inputStr;
         System.out.println("Results found, do you want to sort the trips (y/n)");
-        inputStr = sc.next();
+        inputStr = sc.nextLine();
         if (!inputStr.equals("y")) {
             return new int[] { 3, 1 };
         }
@@ -105,7 +111,7 @@ public class UserInterface {
                     [0] Exit
                     """);
 
-            inputStr = sc.next();
+            inputStr = sc.nextLine();
             switch (inputStr) {
                 case "1":
                     result[0] = 1;
@@ -130,7 +136,7 @@ public class UserInterface {
                     [0] Exit
                     """);
 
-            inputStr = sc.next();
+            inputStr = sc.nextLine();
             switch (inputStr) {
                 case "1", "0":
                     result[1] = 1;
@@ -143,7 +149,6 @@ public class UserInterface {
                 }
             }
         }
-
         return result;
     }
 
@@ -156,17 +161,16 @@ public class UserInterface {
     }
 
     public static int getSelectedTripIndex(List<Trip> sortedResults) {
-        Scanner sc = new Scanner(System.in);
         int tripIndex = -1;
         System.out.println("Would you like to book one of the listed trips? (y/n)");
-        String bookingChoice = sc.next();
+        String bookingChoice = sc.nextLine();
         if (!bookingChoice.equals("y")) {
             return -1;
         }
         System.out.print("Enter the number of the trip you want to select: ");
 
         while (true) {
-            String inputStr = sc.next();
+            String inputStr = sc.nextLine();
 
             try {
                 tripIndex = Integer.parseInt(inputStr);
@@ -181,16 +185,14 @@ public class UserInterface {
                 System.out.println("Invalid input. Please enter a valid number.");
             }
         }
-
         return tripIndex;
     }
 
-    public static void getClientInfo(Booking booking) {
-        Scanner sc = new Scanner(System.in);
+    public static int getNbOfClients(Booking booking) {
         System.out.println("Please enter the number of clients:");
         int nbOfClients = -1;
         while (true) {
-            String inputStr = sc.next();
+            String inputStr = sc.nextLine();
             try {
                 nbOfClients = Integer.parseInt(inputStr);
                 if (nbOfClients < 0) {
@@ -202,13 +204,68 @@ public class UserInterface {
                 System.out.println("Invalid input. Please enter a valid number.");
             }
         }
-        for (int i = 0; i < nbOfClients; i++) {
-            // Create logic for enterTravelerDetails(age, name, id) somewhere and call it
-            // here
-            // Follow operation contract when creating its logic
-            System.out.println("Logic for entering client: " + (i + 1) + "...");
-        }
 
+        return nbOfClients;
+    }
+
+    public static String promptClientName() {
+
+        System.out.print("Enter Name: ");
+        String name = sc.nextLine();
+        return name;
+    }
+
+    public static int promptClientAge() {
+
+        int age = -1;
+
+        while (true) {
+            System.out.print("Enter Age: ");
+            String ageStr = sc.nextLine();
+
+            try {
+                age = Integer.parseInt(ageStr);
+                if (age <= 0) {
+                    System.out.println("Invalid age. Please enter a number greater than 0.");
+                } else {
+                    break;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid number for age.");
+            }
+        }
+        return age;
+    }
+
+    public static Long promptClientId() {
+
+        long id = -1;
+        while (true) {
+            System.out.print("Enter ID: ");
+            String idStr = sc.nextLine();
+
+            try {
+                id = Long.parseLong(idStr);
+                if (id <= 0) {
+                    System.out.println("Invalid ID. Please enter a number greater than 0.");
+                } else {
+                    break;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid number for ID.");
+            }
+        }
+        return id;
+    }
+
+    public static boolean confirmBooking() {
+        System.out.println("Would you like to confirm your booking? (y/n)");
+        String clientChoice = sc.nextLine();
+        if (clientChoice.equals("y")) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

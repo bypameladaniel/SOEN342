@@ -2,12 +2,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Client {
-    private String clientID;
+    private Long clientID;
     private String name;
     private int age;
     private List<Booking> bookings = new ArrayList<>();
 
-    public Client(String clientID, String name, int age) {
+    public Client(Long clientID, String name, int age) {
         this.clientID = clientID;
         this.name = name;
         this.age = age;
@@ -17,7 +17,7 @@ public class Client {
         bookings.add(booking);
     }
 
-    public String getClientID() {
+    public Long getClientID() {
         return clientID;
     }
 

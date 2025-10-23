@@ -1,14 +1,16 @@
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ClientDB {
-    private Map<String, Client> clients = new HashMap<>();
+    private Map<Long, Client> clients = new HashMap<>();
 
     public void addClient(Client client) {
         clients.put(client.getClientID(), client);
     }
 
-    public Client findClientById(String clientID) {
+    public Client findClientById(Long clientID) {
         return clients.get(clientID);
     }
 
@@ -21,7 +23,7 @@ public class ClientDB {
         return null;
     }
 
-    public Map<String, Client> getAllClients() {
-        return clients;
+    public List<Client> getAllClients() {
+        return new ArrayList<>(clients.values());
     }
 }
