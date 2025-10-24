@@ -216,55 +216,7 @@ public class UserInterface {
         return name;
     }
 
-    public static String promptClientLastName() {
 
-        System.out.print("Enter Last Name: ");
-        String name = sc.nextLine();
-        return name;
-    }
-
-    public static int promptClientAge() {
-
-        int age = -1;
-
-        while (true) {
-            System.out.print("Enter Age: ");
-            String ageStr = sc.nextLine();
-
-            try {
-                age = Integer.parseInt(ageStr);
-                if (age <= 0) {
-                    System.out.println("Invalid age. Please enter a number greater than 0.");
-                } else {
-                    break;
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number for age.");
-            }
-        }
-        return age;
-    }
-
-    public static Long promptClientId() {
-
-        long id = -1;
-        while (true) {
-            System.out.print("Enter ID: ");
-            String idStr = sc.nextLine();
-
-            try {
-                id = Long.parseLong(idStr);
-                if (id <= 0) {
-                    System.out.println("Invalid ID. Please enter a number greater than 0.");
-                } else {
-                    break;
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number for ID.");
-            }
-        }
-        return id;
-    }
 
     public static LocalDate promptTripDate() {
         while (true) {
@@ -313,5 +265,59 @@ public class UserInterface {
                 System.out.println("Client not found. Please try again. or enter '0' to exit.");
             }
         }
+    }
+
+    public static boolean isExistingClient() {
+        System.out.println("is the client already registered? (y/n)");
+        String inputStr = sc.nextLine();
+        return inputStr.equalsIgnoreCase("y");
+    }
+
+    public static Client promptClientCreation() {
+        String firstName;
+        String lastName;
+        int age = -1;
+        Long id = -1L;
+
+        System.out.println("Enter new client details:");
+
+        System.out.print("First Name: ");
+        firstName = sc.nextLine();
+
+        System.out.print("Last Name: ");
+        lastName = sc.nextLine();
+
+        while (true) {
+            System.out.print("Age: ");
+            String ageStr = sc.nextLine();
+            try {
+                age = Integer.parseInt(ageStr);
+                if (age < 0) {
+                    System.out.println("Invalid age. Please enter a non-negative number.");
+                } else {
+                    break;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid number for age.");
+            }
+        }
+
+        while (true) {
+            System.out.print("Client ID: ");
+            String idStr = sc.nextLine();
+            try {
+                id = Long.parseLong(idStr);
+                if (id < 0) {
+                    System.out.println("Invalid ID. Please enter a non-negative number.");
+                } else {
+                    break;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid number for Client ID.");
+            }
+        }
+
+        return new Client(id, firstName, lastName, age);
+
     }
 }
