@@ -41,10 +41,8 @@ public class TripUtils {
     }
 
     public static List<Trip> sortTrips(List<Trip> list, int sortBy, boolean isAscending) {
-        if (!list.isEmpty() && list.get(0) instanceof Trip) {
-            @SuppressWarnings("unchecked")
-            List<Trip> typedList = (List<Trip>) list;
-            List<Trip> sortedTrips = new ArrayList<>(typedList);
+        if (!list.isEmpty()) {
+            List<Trip> sortedTrips = new ArrayList<>(list);
             sortedTrips.sort((Comparator<Trip>) getTripComparator(sortBy, isAscending));
             return sortedTrips;
         } 
