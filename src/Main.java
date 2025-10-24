@@ -32,14 +32,17 @@ public class Main {
             System.out.print("Enter your choice: ");
             String choice = sc.nextLine();
 
-
             switch (choice) {
                 case "1":
                     List<Trip> unsortedTrips = searchTrip();
-                    if (unsortedTrips.isEmpty()) {break;}
+                    if (unsortedTrips.isEmpty()) {
+                        break;
+                    }
                     List<Trip> sortedTrips = sortTrips(unsortedTrips);
                     Booking booking = selectTrip(sortedTrips);
-                    if (booking == null) {break;}
+                    if (booking == null) {
+                        break;
+                    }
                     List<Client> clients = enterTravelerDetails(booking);
                     bookTrip(booking, clients);
                     break;
@@ -59,19 +62,37 @@ public class Main {
 
     }
 
-    //CO1
+    // CO1
     public List<Trip> searchTrip() {
         SearchQuery sq = UserInterface.printSearchParameters(cityDB);
 
         if (sq == null)
             return null;
 
-        List<Trip> result = TripUtils.getTripAndConnections(connectionDB.getAllConnections(), sq);
+        List<Trip> results = connectionDB.getConnections(sq);
+        if (!results.isEmpty()) {
+            return results;
+        } else {
+            System.out.println("Could not find a single connection matching the request");
+        }
 
-        return  result;
+        if (sq.getDepartureCity() != null && sq.getArrivalCity() != null) {
+            System.out.println("Trying to find a trip with multiple connections");
+
+            List<Trip> trips = TripUtils.findIndirectTrips(sq.getDepartureCity(), sq.getArrivalCity());
+            if (trips.isEmpty()) {
+                System.out.println("Could not find a trip with multiple connections");
+                return results;
+            } else {
+                results.addAll(TripUtils.getSpecificTrip(sq, trips));
+            }
+
+        }
+
+        return results;
     }
 
-    //CO2
+    // CO2
     public List<Trip> sortTrips(List<Trip> result) {
 
         int[] sortingPreferences = UserInterface.getSortingPreferences();
@@ -82,21 +103,21 @@ public class Main {
         return sortedResults;
     }
 
-    //CO3
+    // CO3
     public Booking selectTrip(List<Trip> sortedResults) {
         int tripIndex = UserInterface.getSelectedTripIndex(sortedResults);
 
-        if (tripIndex != 0) {
+        if (tripIndex >= 0) {
             System.out.println("Selected Trip: " + sortedResults.get(tripIndex));
 
         } else {
             return null;
         }
 
-        return  new Booking(sortedResults.get(tripIndex));
+        return new Booking(sortedResults.get(tripIndex));
     }
 
-    //CO4
+    // CO4
     public List<Client> enterTravelerDetails(Booking booking) {
 
         int nbOfClients = UserInterface.getNbOfClients(booking);
@@ -104,7 +125,8 @@ public class Main {
 
         for (int i = 0; i < nbOfClients; i++) {
             System.out.println("Client " + (i + 1) + ":");
-            if (UserInterface.isExistingClient()) {;
+            if (UserInterface.isExistingClient()) {
+                ;
                 Client client = UserInterface.promptClientLookup(clientDB);
                 if (client != null) {
                     clients.add(client);
@@ -116,36 +138,33 @@ public class Main {
 
             Client client = UserInterface.promptClientCreation();
             clients.add(client);
-
-            clients.add(client);
-
         }
 
         return clients;
     }
 
-    //CO5
+    // CO5
     public void bookTrip(Booking booking, List<Client> clients) {
 
-            LocalDate tripDate = UserInterface.promptTripDate();
+        LocalDate tripDate = UserInterface.promptTripDate();
 
-            booking.setDate(tripDate);
+        booking.setDate(tripDate);
 
-            if (UserInterface.confirmBooking()) {
+        if (UserInterface.confirmBooking()) {
 
-                for (Client client : clients) {
-                    clientDB.addClient(client);
-                    createReservation(client, booking);
-                    client.addBooking(booking);
-                }
-
-                System.out.println(booking);
-            } else {
-                System.out.println("Booking cancelled.");
+            for (Client client : clients) {
+                clientDB.addClient(client);
+                createReservation(client, booking);
+                client.addBooking(booking);
             }
+
+            System.out.println(booking);
+        } else {
+            System.out.println("Booking cancelled.");
+        }
     }
 
-    //CO6
+    // CO6
     public void viewClientTrips() {
         Client client = UserInterface.promptClientLookup(clientDB);
         if (client != null) {
