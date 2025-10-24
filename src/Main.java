@@ -1,3 +1,4 @@
+import java.time.LocalDate;
 import java.util.*;
 
 public class Main {
@@ -77,27 +78,32 @@ public class Main {
 
             for (int i = 0; i < nbOfClients; i++) {
                 System.out.println("Client " + (i + 1) + ":");
-                String name = UserInterface.promptClientName();
+                String firstName = UserInterface.promptClientFirstName();
+                String lastName = UserInterface.promptClientLastName();
                 int age = UserInterface.promptClientAge();
                 Long id = UserInterface.promptClientId();
-                Client client = enterTravelerDetails(name, age, id);
+                Client client = enterTravelerDetails(firstName, lastName, age, id);
                 clients.add(client);
                 createReservation(client, booking);
             }
+
+            LocalDate tripDate = UserInterface.promptTripDate();
+
             if (UserInterface.confirmBooking()) {
-                bookTrip(booking, clients);
+                bookTrip(booking, clients, tripDate);
                 System.out.println(booking);
             } else {
                 System.out.println("Booking cancelled.");
             }
+
         }
     }
 
-    public Client enterTravelerDetails(String name, int age, Long id) {
+    public Client enterTravelerDetails(String firstName, String lastName, int age, Long id) {
         Client client;
         client = clientDB.findClientById(id);
         if (client == null) {
-            client = new Client(id, name, age);
+            client = new Client(id, firstName, lastName, age);
         }
         return client;
     }
@@ -109,19 +115,20 @@ public class Main {
         return reservation;
     }
 
-    public void bookTrip(Booking booking, List<Client> clients) {
+    public void bookTrip(Booking booking, List<Client> clients, LocalDate date) {
         for (Client client : clients) {
             client.addBooking(booking);
             clientDB.addClient(client);
         }
+        booking.setDate(date);
         bookingDB.addBooking(booking);
+
     }
 
     public void viewClientTrips() {
-        List<Client> clients = clientDB.getAllClients();
-        for (Client client : clients) {
-            System.out.println("Client: " + client.getClientID() + "\n");
-            System.out.println(client.getBookings());
+        Client client = UserInterface.promptClientLookup(clientDB);
+        if (client != null) {
+            System.out.println(client.getBookingSummary());
         }
     }
 

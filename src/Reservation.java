@@ -23,7 +23,7 @@ public class Reservation {
 
     @Override
     public String toString() {
-        return String.format("Reservation for %s | Ticket: %s", 
-                             client.getName(), ticket.getTicketID());
+        return String.format("Reservation for %s %s | Ticket: %s",
+                             client.getFirstName(), client.getLastName(), ticket.getTicketID());
     }
 }

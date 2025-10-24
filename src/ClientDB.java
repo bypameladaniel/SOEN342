@@ -14,9 +14,17 @@ public class ClientDB {
         return clients.get(clientID);
     }
 
-    public Client findClientByName(String name) {
+    public Client finClientByIDAndName(Long clientID, String name) {
+        Client client = clients.get(clientID);
+        if (client != null && client.getLastName() != null && client.getLastName().equalsIgnoreCase(name)) {
+            return client;
+        }
+        return null;
+    }
+
+    public Client findClientByLastName(String name) {
         for (Client c : clients.values()) {
-            if (c.getName().equalsIgnoreCase(name)) {
+            if (c.getLastName().equalsIgnoreCase(name)) {
                 return c;
             }
         }

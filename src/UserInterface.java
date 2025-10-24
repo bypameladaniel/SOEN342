@@ -1,3 +1,4 @@
+import java.time.LocalDate;
 import java.util.*;
 
 public class UserInterface {
@@ -208,9 +209,16 @@ public class UserInterface {
         return nbOfClients;
     }
 
-    public static String promptClientName() {
+    public static String promptClientFirstName() {
 
-        System.out.print("Enter Name: ");
+        System.out.print("Enter First Name: ");
+        String name = sc.nextLine();
+        return name;
+    }
+
+    public static String promptClientLastName() {
+
+        System.out.print("Enter Last Name: ");
         String name = sc.nextLine();
         return name;
     }
@@ -258,6 +266,17 @@ public class UserInterface {
         return id;
     }
 
+    public static LocalDate promptTripDate() {
+        while (true) {
+        System.out.print("Enter Date of Travel (YYYY-MM-DD): ");
+        String dateStr = sc.nextLine();
+        try {
+            return  LocalDate.parse(dateStr);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid date format. Please enter the date in YYYY-MM-DD format.");
+        }
+        }
+    }
     public static boolean confirmBooking() {
         System.out.println("Would you like to confirm your booking? (y/n)");
         String clientChoice = sc.nextLine();
@@ -268,4 +287,31 @@ public class UserInterface {
         }
     }
 
+    public static Client promptClientLookup(ClientDB clientDB) {
+        Client c = null;
+        String idStr;
+        String nameStr;
+        while (true) {
+            System.out.print("Enter Client ID: ");
+            idStr = sc.nextLine();
+
+            if (idStr.equals("0")) {return null;}
+
+            System.out.println("Enter Client Last Name: ");
+            nameStr = sc.nextLine();
+
+            try {
+                Long clientID = Long.parseLong(idStr);;
+                c = clientDB.finClientByIDAndName(clientID, nameStr);// Placeholder, actual lookup should be done outside
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid number for Client ID.");
+            }
+
+            if (c != null) {
+                return c;
+            } else {
+                System.out.println("Client not found. Please try again. or enter '0' to exit.");
+            }
+        }
+    }
 }
