@@ -1,28 +1,56 @@
+import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class BookingDB {
-    private List<Booking> bookings = new ArrayList<>();
+    private java.sql.Connection dbConnection;
 
-    public void addBooking(Booking booking) {
-        bookings.add(booking);
+    public BookingDB() {
+        try {
+            dbConnection = DriverManager.getConnection("jdbc:sqlite:soen342.db");
+            createTableIfNotExists();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
-    public Booking findBookingById(String bookingId) {
-        for (Booking b : bookings) {
-            if (b.getBookingID().equals(bookingId)) {
-                return b;
-            }
+    private void createTableIfNotExists() throws SQLException {
+        String sql = """
+            CREATE TABLE IF NOT EXISTS Booking (
+                bookingId TEXT PRIMARY KEY,
+                date TEXT,
+                tripDetails TEXT
+            );
+        """;
+        dbConnection.createStatement().execute(sql);
+    }
+
+    public void addBooking(Booking booking) {
+        String sql = "INSERT INTO Booking (bookingId, date, tripDetails) VALUES (?, ?, ?)";
+        try (PreparedStatement stmt = dbConnection.prepareStatement(sql)) {
+            stmt.setString(1, booking.getBookingID());
+            stmt.setString(2, booking.getDate() != null ? booking.getDate().toString() : null);
+            stmt.setString(3, booking.getTrip().toString());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return null;
     }
 
     public List<Booking> getAllBookings() {
+        List<Booking> bookings = new ArrayList<>();
+        String sql = "SELECT * FROM Booking";
+        try (Statement stmt = dbConnection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Booking b = new Booking(null);
+                b.setDate(LocalDate.parse(rs.getString("date")));
+                bookings.add(b);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return bookings;
-    }
-
-    public String generateBookingID() {
-        return "BKG-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 }
