@@ -1,8 +1,51 @@
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.function.Predicate;
 
 public class TripUtils {
+
+    private static boolean searchTripPolicy(Connection firstConnection, Connection secondConnection) {
+        boolean layoverAccepted;
+
+        LocalTime firstArrivalTime = LocalTime.parse(firstConnection.getArrivalTime().substring(0, 5));
+        LocalTime secondDepartureTime = LocalTime.parse(secondConnection.getDepartureTime().substring(0, 5));
+
+        LocalTime afterHoursStart = LocalTime.of(22, 0);
+        LocalTime afterHoursEnd = LocalTime.of(5, 0);
+
+        boolean isAfterHours = firstArrivalTime.isAfter(afterHoursStart) || firstArrivalTime.isBefore(afterHoursEnd);
+
+        int arrivalMinutes = firstArrivalTime.getHour() * 60 + firstArrivalTime.getMinute();
+        int departureMinutes = secondDepartureTime.getHour() * 60 + secondDepartureTime.getMinute();
+        int duration = departureMinutes - arrivalMinutes;
+
+        LocalDate currentDate = LocalDate.now();
+        DayOfWeek currentDay = currentDate.getDayOfWeek();
+        NextOperationDayResult departureDay = Trip.getNextOperatingDay(currentDay,
+                firstConnection.getDaysOfOperation());
+
+        if (!secondConnection.getDaysOfOperation().contains(departureDay.day()) || duration < 0) {
+            NextOperationDayResult layover = Trip.getNextOperatingDay(departureDay.day(),
+                    secondConnection.getDaysOfOperation());
+            layoverAccepted = layover.waitDays() == 1 && duration < 0;
+        } else {
+            layoverAccepted = true;
+        }
+
+        if (layoverAccepted) {
+            if (duration < 0) {
+                duration += 24 * 60;
+            }
+            if (isAfterHours) {
+                return duration < 120;
+            } else {
+                return duration < 240;
+            }
+        }
+        return false;
+    }
 
     public static List<Trip> findIndirectTrips(City departureCity, City arrivalCity) {
         List<Trip> results = new ArrayList<>();
@@ -24,13 +67,14 @@ public class TripUtils {
             for (Connection secondLeg : midCity.getOutgoingConnections()) {
                 City secondCity = secondLeg.getArrivalCity();
 
-                if (secondCity.equals(arrivalCity)) {
+                if (secondCity.equals(arrivalCity) && searchTripPolicy(firstLeg, secondLeg)) {
                     results.add(new Trip(Arrays.asList(firstLeg, secondLeg)));
                 }
 
                 // 2-stop paths
                 for (Connection thirdLeg : secondCity.getOutgoingConnections()) {
-                    if (thirdLeg.getArrivalCity().equals(arrivalCity)) {
+                    if (thirdLeg.getArrivalCity().equals(arrivalCity) && searchTripPolicy(firstLeg, secondLeg)
+                            && searchTripPolicy(secondLeg, thirdLeg)) {
                         results.add(new Trip(Arrays.asList(firstLeg, secondLeg, thirdLeg)));
                     }
                 }
@@ -45,7 +89,7 @@ public class TripUtils {
             List<Trip> sortedTrips = new ArrayList<>(list);
             sortedTrips.sort((Comparator<Trip>) getTripComparator(sortBy, isAscending));
             return sortedTrips;
-        } 
+        }
         return list;
     }
 
@@ -58,7 +102,7 @@ public class TripUtils {
         };
         return isAscending ? comparator : comparator.reversed();
     }
-    
+
     public static List<Trip> getSpecificTrip(SearchQuery searchQuery, List<Trip> trips) {
         List<Trip> results = new ArrayList<>(trips);
 
@@ -122,6 +166,7 @@ public class TripUtils {
             }
 
         }
+
         return results;
     }
 

@@ -12,9 +12,6 @@ public class Trip {
     private String waitTime;
     private int waitTimeInMinutes;
 
-    public record NextOperationDayResult(int waitDays, DayOfWeek day) {
-    }
-
     public Trip(List<Connection> connections) {
         this.connections = connections;
         calculateTotals();
