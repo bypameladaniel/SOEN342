@@ -17,13 +17,14 @@ public class ConnectionDB {
     private java.sql.Connection dbConnection;
 
 
-    public ConnectionDB() {
+    public ConnectionDB(CityDB cityDB) {
         this.connections = new ArrayList<>();
         
         try {
             dbConnection = java.sql.DriverManager.getConnection("jdbc:sqlite:soen342.db");
 
             createTablesIfNotExist();
+            getConnectionFromDB(cityDB);
             System.out.println("✅ SQLite connected in ConnectionDB.");
         } catch (SQLException e) {
             System.err.println("⚠️ Could not connect to database.");
@@ -40,12 +41,8 @@ public class ConnectionDB {
     }
 
     private void createTablesIfNotExist() throws SQLException {
-        String cityTable = """
-            CREATE TABLE IF NOT EXISTS City (
-                name TEXT PRIMARY KEY
-            );
-        """;
-    
+        // City table moved to CityDB to centralize City schema management.
+
         String connectionTable = """
             CREATE TABLE IF NOT EXISTS Connection (
                 routeId TEXT PRIMARY KEY,
@@ -61,9 +58,8 @@ public class ConnectionDB {
                 FOREIGN KEY (arrivalCity) REFERENCES City(name)
             );
         """;
-    
+
         try (Statement stmt = dbConnection.createStatement()) {
-            stmt.execute(cityTable);
             stmt.execute(connectionTable);
         }
     }
@@ -171,8 +167,6 @@ public class ConnectionDB {
                     Double.parseDouble(row[7]), Double.parseDouble(row[8])
             );
 
-            // keep in memory
-            connections.add(conn);
             departureCity.addOutgoingConnection(conn);
             arrivalCity.addIncomingConnection(conn);
 
@@ -204,4 +198,70 @@ public class ConnectionDB {
     }
 }
 
+    public void getConnectionFromDB(CityDB cityDB) {
+        String query = "SELECT routeId, departureCity, arrivalCity, departureTime, arrivalTime, trainType, daysOfOperation, firstClassRate, secondClassRate FROM Connection";
+        try (Statement stmt = dbConnection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            // clear existing to avoid duplicates
+            connections.clear();
+
+            while (rs.next()) {
+                String routeId = rs.getString("routeId");
+                String depName = rs.getString("departureCity");
+                String arrName = rs.getString("arrivalCity");
+                String depTime = rs.getString("departureTime");
+                String arrTime = rs.getString("arrivalTime");
+                String trainType = rs.getString("trainType");
+                String days = rs.getString("daysOfOperation");
+                double firstRate = rs.getDouble("firstClassRate");
+                double secondRate = rs.getDouble("secondClassRate");
+
+                City departureCity = cityDB.findCity(depName);
+                if (departureCity == null) {
+                    departureCity = new City(depName);
+                    cityDB.addCity(departureCity);
+                }
+
+                City arrivalCity = cityDB.findCity(arrName);
+                if (arrivalCity == null) {
+                    arrivalCity = new City(arrName);
+                    cityDB.addCity(arrivalCity);
+                }
+
+                Connection conn = new Connection(
+                        routeId, departureCity, arrivalCity,
+                        depTime, arrTime, trainType, days,
+                        firstRate, secondRate
+                );
+
+                connections.add(conn);
+                departureCity.addOutgoingConnection(conn);
+                arrivalCity.addIncomingConnection(conn);
+            }
+
+            System.out.println("✅ Loaded " + connections.size() + " connections from DB.");
+        } catch (SQLException e) {
+            System.err.println("⚠️ Failed to load connections from DB.");
+            e.printStackTrace();
+        }
+    }
+
+    public List<Connection> getConnectionsByIds(List<String> connectionsIds) {
+
+        List<Connection> result = new ArrayList<>();
+        for (String id : connectionsIds) {
+            for (Connection conn : connections) {
+                if (conn.getRouteId().equals(id)) {
+                    result.add(conn);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    public boolean isEmpty() {
+        return connections.isEmpty();
+    }
 }

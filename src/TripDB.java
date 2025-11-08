@@ -1,10 +1,144 @@
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.function.Predicate;
 
-public class TripUtils {
+public class TripDB {
+    private java.sql.Connection dbConnection;
+    private HashMap<Long,Trip> trips;
+
+    public TripDB(ConnectionDB connectionDB) {
+        try {
+            dbConnection = DriverManager.getConnection("jdbc:sqlite:soen342.db");
+            createTableIfNotExists();
+            getFromTripDB(connectionDB);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createTableIfNotExists() {
+        String sql = """
+            CREATE TABLE IF NOT EXISTS Trip (
+                tripId TEXT PRIMARY KEY,
+                totalFirstClassRate REAL,
+                totalSecondClassRate REAL,
+                tripDuration TEXT,
+                tripDurationInMinutes INTEGER,
+                waitTime TEXT,
+                waitTimeInMinutes INTEGER
+            );
+        """;
+
+        String sql2 = """
+            CREATE TABLE IF NOT EXISTS TripConnections (
+                tripId INTEGER ,
+                connectionId TEXT,
+                PRIMARY KEY (tripId, connectionId),
+                FOREIGN KEY (tripId) REFERENCES Trip(tripId),
+                FOREIGN KEY (connectionId) REFERENCES Connection(routeId)
+            );
+        """;
+
+        try {
+            dbConnection.createStatement().execute(sql);
+            dbConnection.createStatement().execute(sql2);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+
+    }
+
+    private void addTripConnection(Long tripId, String connectionId) {
+        String sql = "INSERT INTO TripConnections (tripId, connectionId) VALUES (?, ?)";
+        try (var stmt = dbConnection.prepareStatement(sql)) {
+            stmt.setLong(1, tripId);
+            stmt.setString(2, connectionId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<String> getFromTripConnectionsDB(String tripId) {
+        List<String> connections = new ArrayList<>();
+        String query = "SELECT connectionId FROM TripConnections WHERE tripId = ?";
+        try (var stmt = dbConnection.prepareStatement(query)) {
+            stmt.setString(1, tripId);
+            try (var rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    connections.add(rs.getString("connectionId")) ;
+
+                }
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return connections;
+    }
+
+    public void getFromTripDB(ConnectionDB connectionDB) {
+        String query = "SELECT * FROM Trip";
+        try (var stmt = dbConnection.createStatement();
+             var rs = stmt.executeQuery(query)) {
+
+            trips = new HashMap<>();
+            while (rs.next()) {
+                Trip trip = new Trip(rs.getLong(1),
+                        rs.getDouble(2), rs.getDouble(3),
+                        rs.getString(4), rs.getInt(5),
+                        rs.getString(6), rs.getInt(7));
+
+                trip.setConnectionsIds(getFromTripConnectionsDB(rs.getString(1)));
+
+                trip.setConnections(connectionDB.getConnectionsByIds(trip.getConnectionsIds()));
+
+
+                trips.put(trip.getTripId(), trip);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public Long addTrip(Trip trip) {
+        String sql = "INSERT INTO Trip (tripId, totalFirstClassRate, totalSecondClassRate, " +
+                "tripDuration, tripDurationInMinutes, waitTime, waitTimeInMinutes) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (var stmt = dbConnection.prepareStatement(sql)) {
+            stmt.setLong(1, trip.getTripId());
+            stmt.setDouble(2, trip.getTotalFirstClassRate());
+            stmt.setDouble(3, trip.getTotalSecondClassRate());
+            stmt.setString(4, trip.getTripDuration());
+            stmt.setInt(5, trip.getTripDurationInMinutes());
+            stmt.setString(6, trip.getWaitTime());
+            stmt.setInt(7, trip.getWaitTimeInMinutes());
+            stmt.executeUpdate();
+
+            for (Connection c : trip.getConnections()) {
+                addTripConnection(trip.getTripId(), c.getRouteId());
+            }
+
+            trips.put(trip.getTripId(), trip);
+            return trip.getTripId();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
+    public Trip findTripById(Long tripId) {
+        return trips.get(tripId);
+    }
 
     private static boolean searchTripPolicy(Connection firstConnection, Connection secondConnection) {
         boolean layoverAccepted;
@@ -171,3 +305,4 @@ public class TripUtils {
     }
 
 }
+
