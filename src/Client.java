@@ -22,6 +22,10 @@ public class Client {
         currentBookings.add(booking);
     }
 
+    public void addPreviousBooking(Booking booking) {
+        previousBookings.add(booking);
+    }
+
     public Long getClientID() {
         return clientID;
     }
@@ -42,7 +46,7 @@ public class Client {
         return previousBookings;
     }
 
-    public void updateBookings() {
+    public void updateBookings(ClientDB clientDB) {
 
         Iterator<Booking> iterator = currentBookings.iterator();
 
@@ -51,17 +55,21 @@ public class Client {
             if (b.getDate().isBefore(LocalDate.now())) {
                 previousBookings.add(b);
                 iterator.remove();
+                clientDB.markBookingAsPrevious(clientID, b.getBookingID());
             }
         }
     }
 
-    public String getBookingSummary() {
+    public String getBookingSummary(ClientDB clientDB) {
 
-        updateBookings();
+        updateBookings(clientDB);
 
         StringBuilder sb = new StringBuilder();
         sb.append("Current Trips for ").append(firstName).append(":\n");
         for (Booking b : currentBookings) {
+            if (b.getTrip() == null) {
+                continue;
+            }
             sb.append(b.getTrip().toString()).append("\n");
         }
         sb.append("Previous Trips for ").append(firstName).append(":\n");

@@ -7,6 +7,10 @@ public class Ticket {
         this.ticketID = generateTicketID();
     }
 
+    public Ticket(String ticketID) {
+        this.ticketID = ticketID;
+    }
+
     private String generateTicketID() {
         return "TCK-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }

@@ -15,6 +15,12 @@ public class Booking {
         this.trip = trip;
     }
 
+    public Booking(String bookingID, Trip trip, LocalDate date) {
+        this.bookingID = bookingID;
+        this.trip = trip;
+        this.date = date;
+    }
+
 
 
     public String getBookingID() {

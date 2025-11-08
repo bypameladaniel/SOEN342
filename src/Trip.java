@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Set;
 
 public class Trip {
+    private long tripId;
     private List<Connection> connections;
+    private List<String> connectionsIds;
     private double totalFirstClassRate;
     private double totalSecondClassRate;
     private String tripDuration;
@@ -12,13 +14,23 @@ public class Trip {
     private String waitTime;
     private int waitTimeInMinutes;
 
-    public record NextOperationDayResult(int waitDays, DayOfWeek day) {
-    }
-
     public Trip(List<Connection> connections) {
         this.connections = connections;
         calculateTotals();
     }
+
+    public Trip(long tripId, double totalFirstClassRate, double totalSecondClassRate, String tripDuration, int tripDurationInMinutes, String waitTime, int waitTimeInMinutes) {
+        this.tripId = tripId;
+        this.totalFirstClassRate = totalFirstClassRate;
+        this.totalSecondClassRate = totalSecondClassRate;
+        this.tripDuration = tripDuration;
+        this.tripDurationInMinutes = tripDurationInMinutes;
+        this.waitTime = waitTime;
+        this.waitTimeInMinutes = waitTimeInMinutes;
+
+    }
+
+
 
     private void calculateTotals() {
         double totalFirstClassRate = 0;
@@ -132,6 +144,15 @@ public class Trip {
 //        return departure;
 //    }
 
+
+    public void setConnectionsIds(List<String> connectionsIds) {
+        this.connectionsIds = connectionsIds;
+    }
+
+    public void setConnections(List<Connection> connections) {
+        this.connections = connections;
+    }
+
     public List<Connection> getConnections() {
         return connections;
     }
@@ -152,7 +173,7 @@ public class Trip {
         return tripDurationInMinutes;
     }
 
-    public String getWaitTimes() {
+    public String getWaitTime() {
         return waitTime;
     }
 
@@ -173,5 +194,14 @@ public class Trip {
                 ", 1st=€" + String.format("%.2f", totalFirstClassRate) +
                 ", 2nd=€" + String.format("%.2f", totalSecondClassRate) +
                 "\nConnections:\n" + connectionsDetails.toString();
+    }
+
+    public Long getTripId() {
+        return tripId;
+    }
+
+
+    public List<String> getConnectionsIds() {
+        return connectionsIds;
     }
 }
