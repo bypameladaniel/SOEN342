@@ -16,8 +16,8 @@ public class Main {
     public void run() {
         UserInterface.printWelcome();
 
-        connectionDB = new ConnectionDB();
         cityDB = new CityDB();
+        connectionDB = new ConnectionDB();
         clientDB = new ClientDB();
         bookingDB = new BookingDB();
 
@@ -176,6 +176,7 @@ public class Main {
     public Reservation createReservation(Client client, Booking booking) {
         Reservation reservation = new Reservation(client, booking, new Ticket());
         booking.addReservation(reservation);
+        reservationDB.addReservation(reservation);
         return reservation;
     }
 
