@@ -1,5 +1,5 @@
 public class Reservation {
-    private int reservationID;
+    private long reservationID;
     private Client client;
     private Booking booking;
     private Ticket ticket;
@@ -9,11 +9,11 @@ public class Reservation {
         this.booking = booking;
         this.ticket = ticket;
     }
-    public void  setReservationID(int reservationID) {
+    public void  setReservationID(long reservationID) {
         this.reservationID = reservationID;
     }
 
-    public int getReservationID() {
+    public long getReservationID() {
         return reservationID;
     }
 

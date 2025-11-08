@@ -61,7 +61,17 @@ public class CityDB {
 
     public void addCity(City city) {
         cities.put(city.getName(), city);
+        String sql = "INSERT OR REPLACE INTO City (name) VALUES (?)";
+        try (var stmt = dbConnection.prepareStatement(sql)) {
+            stmt.setString(1, city.getName());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("⚠️ Failed to save city to DB: " + city.getName());
+            e.printStackTrace();
+        }
     }
+
+
 
     public City findCity(String name) {
         return cities.get(name); // must match capitalization (e.g., "Paris")

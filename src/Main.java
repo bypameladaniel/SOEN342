@@ -7,6 +7,9 @@ public class Main {
     private CityDB cityDB;
     private ConnectionDB connectionDB;
     private BookingDB bookingDB;
+    private ReservationDB reservationDB;
+    private TicketDB ticketDB;
+    private TripDB tripDB;
 
     public static void main(String[] var0) throws Exception {
         Main app = new Main();
@@ -17,12 +20,18 @@ public class Main {
         UserInterface.printWelcome();
 
         cityDB = new CityDB();
-        connectionDB = new ConnectionDB();
-        clientDB = new ClientDB();
-        bookingDB = new BookingDB();
+        connectionDB = new ConnectionDB(cityDB);
+        tripDB = new TripDB(connectionDB);
+        bookingDB = new BookingDB(tripDB);
+        clientDB = new ClientDB(bookingDB);
+        ticketDB = new TicketDB();
+        reservationDB = new ReservationDB(clientDB, bookingDB, ticketDB);
 
-        String filePath = "data/eu_rail_network.csv";
-        connectionDB.loadConnections(filePath, cityDB);
+        if (connectionDB.isEmpty()) {
+            String filePath = "data/eu_rail_network.csv";
+            connectionDB.loadConnections(filePath, cityDB);
+        }
+
 
         boolean running = true;
         Scanner sc = new Scanner(System.in);
@@ -79,12 +88,12 @@ public class Main {
         if (sq.getDepartureCity() != null && sq.getArrivalCity() != null) {
             System.out.println("Trying to find a trip with multiple connections");
 
-            List<Trip> trips = TripUtils.findIndirectTrips(sq.getDepartureCity(), sq.getArrivalCity());
+            List<Trip> trips = TripDB.findIndirectTrips(sq.getDepartureCity(), sq.getArrivalCity());
             if (trips.isEmpty()) {
                 System.out.println("Could not find a trip with multiple connections");
                 return results;
             } else {
-                results.addAll(TripUtils.getSpecificTrip(sq, trips));
+                results.addAll(TripDB.getSpecificTrip(sq, trips));
             }
 
         }
@@ -96,7 +105,7 @@ public class Main {
     public List<Trip> sortTrips(List<Trip> result) {
 
         int[] sortingPreferences = UserInterface.getSortingPreferences();
-        List<Trip> sortedResults = TripUtils.sortTrips(result, sortingPreferences[0], sortingPreferences[1] == 1);
+        List<Trip> sortedResults = TripDB.sortTrips(result, sortingPreferences[0], sortingPreferences[1] == 1);
 
         UserInterface.printResult(sortedResults);
 
@@ -156,7 +165,11 @@ public class Main {
                 clientDB.addClient(client);
                 createReservation(client, booking);
                 client.addBooking(booking);
+                clientDB.addClientBooking(client.getClientID(), booking.getBookingID());
             }
+            bookingDB.addBooking(booking);
+            tripDB.addTrip(booking.getTrip());
+
 
             System.out.println(booking);
         } else {
@@ -168,13 +181,16 @@ public class Main {
     public void viewClientTrips() {
         Client client = UserInterface.promptClientLookup(clientDB);
         if (client != null) {
-            System.out.println(client.getBookingSummary());
+
+            System.out.println(client.getBookingSummary(clientDB));
         }
     }
 
     // Could possible live in ReservationDB
     public Reservation createReservation(Client client, Booking booking) {
-        Reservation reservation = new Reservation(client, booking, new Ticket());
+        Ticket ticket = new Ticket();
+        Reservation reservation = new Reservation(client, booking, ticket);
+        ticketDB.addTicket(ticket);
         booking.addReservation(reservation);
         reservationDB.addReservation(reservation);
         return reservation;

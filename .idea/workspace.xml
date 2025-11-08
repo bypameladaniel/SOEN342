@@ -5,12 +5,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cee91757-f43a-4c21-ba91-25982821f6bb" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/ReservationDB.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/SOEN342.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/copilotDiffState.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/data_source_mapping.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/usecase-search/interaction-diagram-search-code.txt" beforeDir="false" afterPath="$PROJECT_DIR$/artifacts/usecase-search/interaction-diagram-search-code.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Booking.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Booking.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/BookingDB.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/BookingDB.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/CityDB.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/CityDB.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientDB.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ClientDB.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ConnectionDB.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ConnectionDB.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Reservation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Reservation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ReservationDB.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ReservationDB.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Ticket.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Ticket.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/TicketDB.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/TicketDB.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Trip.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Trip.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/TripUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/TripDB.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +57,10 @@
     &quot;accountId&quot;: &quot;2698d1aa-dc1d-44f4-b80b-4ffe18e49077&quot;
   }
 }</component>
+  <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
+  <component name="KubernetesApiProvider"><![CDATA[{
+  "isMigrated": true
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 3
 }</component>
@@ -56,6 +77,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "dbConnectionp2",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
@@ -93,17 +115,6 @@
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
-    </configuration>
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="SOEN342" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="SOEN342" />
-      <option name="filePath" />
-      <method v="2" />
     </configuration>
     <recent_temporary>
       <list>

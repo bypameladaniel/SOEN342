@@ -17,13 +17,14 @@ public class ConnectionDB {
     private java.sql.Connection dbConnection;
 
 
-    public ConnectionDB() {
+    public ConnectionDB(CityDB cityDB) {
         this.connections = new ArrayList<>();
         
         try {
             dbConnection = java.sql.DriverManager.getConnection("jdbc:sqlite:soen342.db");
 
             createTablesIfNotExist();
+            getConnectionFromDB(cityDB);
             System.out.println("✅ SQLite connected in ConnectionDB.");
         } catch (SQLException e) {
             System.err.println("⚠️ Could not connect to database.");
@@ -166,8 +167,6 @@ public class ConnectionDB {
                     Double.parseDouble(row[7]), Double.parseDouble(row[8])
             );
 
-            // keep in memory
-            connections.add(conn);
             departureCity.addOutgoingConnection(conn);
             arrivalCity.addIncomingConnection(conn);
 
@@ -199,7 +198,6 @@ public class ConnectionDB {
     }
 }
 
-    // New: load all connections from the DB into the in-memory connections list
     public void getConnectionFromDB(CityDB cityDB) {
         String query = "SELECT routeId, departureCity, arrivalCity, departureTime, arrivalTime, trainType, daysOfOperation, firstClassRate, secondClassRate FROM Connection";
         try (Statement stmt = dbConnection.createStatement();
@@ -249,4 +247,21 @@ public class ConnectionDB {
         }
     }
 
+    public List<Connection> getConnectionsByIds(List<String> connectionsIds) {
+
+        List<Connection> result = new ArrayList<>();
+        for (String id : connectionsIds) {
+            for (Connection conn : connections) {
+                if (conn.getRouteId().equals(id)) {
+                    result.add(conn);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    public boolean isEmpty() {
+        return connections.isEmpty();
+    }
 }

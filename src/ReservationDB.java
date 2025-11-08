@@ -3,19 +3,20 @@ import java.util.*;
 
 public class ReservationDB {
     private final Map<Long, Reservation> reservations = new HashMap<>();
-    private Connection dbConnection;
-    private final ClientDB clientDB;
-    private final BookingDB bookingDB;
-    private final TicketDB ticketDB;
+    private java.sql.Connection dbConnection;
 
-    public ReservationDB() {
-        this(null, null, null);
-    }
+    private ClientDB clientDB;
+    private BookingDB bookingDB;
+    private TicketDB ticketDB;
+
 
     public ReservationDB(ClientDB clientDB, BookingDB bookingDB, TicketDB ticketDB) {
+
         this.clientDB = clientDB;
         this.bookingDB = bookingDB;
         this.ticketDB = ticketDB;
+
+
 
         try {
             dbConnection = DriverManager.getConnection("jdbc:sqlite:soen342.db");
@@ -33,8 +34,8 @@ public class ReservationDB {
             CREATE TABLE IF NOT EXISTS Reservation (
                 reservationId INTEGER PRIMARY KEY AUTOINCREMENT,
                 clientId INTEGER,
-                bookingId INTEGER,
-                ticketId INTEGER
+                bookingId TEXT,
+                ticketId TEXT,
                 foreign key (clientId) references Client(clientId),
                 foreign key (bookingId) references Booking(bookingId),
                 foreign key (ticketId) references Ticket(ticketId)
@@ -55,17 +56,21 @@ public class ReservationDB {
                 Long clientId = rs.getLong("clientId");
                 if (rs.wasNull()) clientId = null;
 
-                Long bookingId = rs.getLong("bookingId");
+                String bookingId = rs.getString("bookingId");
                 if (rs.wasNull()) bookingId = null;
 
-                Long ticketId = rs.getLong("ticketId");
+                String ticketId = rs.getString("ticketId");
                 if (rs.wasNull()) ticketId = null;
 
-                Client client = (clientId != null && clientDB != null) ? clientDB.findClientById(clientId) : null;
-                Booking booking = (bookingId != null && bookingDB != null) ? bookingDB.findBookingById(bookingId) : null;
-                Ticket ticket = (ticketId != null && ticketDB != null) ? ticketDB.findTicketById(ticketId) : null;
+                Client client = clientId != null ? clientDB.findClientById(clientId) : null;
+                Booking booking = bookingId != null ? bookingDB.findBookingById(bookingId) : null;
+                Ticket ticket = ticketId != null ? ticketDB.findTicket(ticketId) : null;
+
 
                 Reservation r = new Reservation(client, booking, ticket);
+                if (booking != null){
+                    booking.addReservation(r);
+                }
                 reservations.put(reservationId, r);
             }
             System.out.println("📋 Loaded " + reservations.size() + " reservations from DB.");
@@ -74,29 +79,26 @@ public class ReservationDB {
         }
     }
 
-    public long createReservation(int clientId, int bookingId, int ticketID) {
+    public long addReservation(Reservation reservation) {
 
-        Restervation reservation = new Reservation(
-           clientId, bookingId, ticketID
-        );
 
          long generatedId = -1;
 
         String insert = "INSERT INTO Reservation (clientId, bookingId, ticketId) VALUES (?, ?, ?)";
         try (PreparedStatement ps = dbConnection.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
             Long clientId = reservation.getClient() != null ? reservation.getClient().getClientID() : null;
-            Long bookingId = reservation.getBooking() != null ? reservation.getBooking().getBookingID() : null;
-            Long ticketId = reservation.getTicket() != null ? reservation.getTicket().getTicketID() : null;
+            String bookingId = reservation.getBooking() != null ? reservation.getBooking().getBookingID() : null;
+            String ticketId = reservation.getTicket() != null ? reservation.getTicket().getTicketID() : null;
 
             if (clientId != null) ps.setLong(1, clientId); else ps.setNull(1, Types.BIGINT);
-            if (bookingId != null) ps.setLong(2, bookingId); else ps.setNull(2, Types.BIGINT);
-            if (ticketId != null) ps.setLong(3, ticketId); else ps.setNull(3, Types.BIGINT);
+            if (bookingId != null) ps.setString(2, bookingId); else ps.setNull(2, Types.BIGINT);
+            if (ticketId != null) ps.setString(3, ticketId); else ps.setNull(3, Types.BIGINT);
 
             ps.executeUpdate();
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (keys.next()) {
-                    reservation.getReservationID = keys.getLong(1);
-                    reservations.put(reservations.getReservationID, reservation);
+                    reservation.setReservationID(keys.getLong(1)) ;
+                    reservations.put(reservation.getReservationID(), reservation);
                     return generatedId;
                 }
             }
