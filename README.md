@@ -42,3 +42,10 @@ The program will start running in the built-in terminal.
    ```bash
    java -cp "bin:lib/*" Main
    
+## Demo Video
+
+We have prepared a 5-minute demo video that walks through all the use cases implemented in this project. 
+
+**Watch the demo here:**  
+[Click to access the demo video](https://youtu.be/ed8XbI8tTyY) 
+
