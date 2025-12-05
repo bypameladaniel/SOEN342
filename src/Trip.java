@@ -16,6 +16,7 @@ public class Trip {
 
     public Trip(List<Connection> connections) {
         this.connections = connections;
+        this.tripId = (long) (Math.random() * 10000);
         calculateTotals();
     }
 
